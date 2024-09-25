@@ -1,7 +1,7 @@
 # app.py
 from datetime import datetime, date
 from io import BytesIO
-
+import os
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from reportlab.pdfgen import canvas
@@ -17,9 +17,13 @@ db.init_app(app)
 
 @app.before_request
 def create_tables():
-    db.create_all()
-    # Popula o banco de dados com dados iniciais
-    populate_db()
+    if not os.path.exists('./instance/database.db'):
+        db.create_all()
+        # Popula o banco de dados com dados iniciais
+        populate_db()
+    else:
+        # As tabelas já existem, não faz nada
+        pass
 
 
 def populate_db():
@@ -29,9 +33,8 @@ def populate_db():
 
     # Adiciona mecânicos
     mecanicos = [
-        Mecanico(nome='João'),
-        Mecanico(nome='Maria'),
-        Mecanico(nome='Carlos')
+        Mecanico(nome='Douglas'),
+        Mecanico(nome='Renan')
     ]
     db.session.add_all(mecanicos)
     db.session.commit()
@@ -41,7 +44,9 @@ def populate_db():
         Ferramenta(nome='Chave Combinada 8mm', categoria='Chaves Combinadas'),
         Ferramenta(nome='Chave Combinada 9mm', categoria='Chaves Combinadas'),
         Ferramenta(nome='Chave Combinada 10mm', categoria='Chaves Combinadas'),
+
         Ferramenta(nome='Chave L 15mm', categoria='Chaves L'),
+
         Ferramenta(nome='Pito Grande 3mm', categoria='Pitos Grandes'),
         # Adicione todas as ferramentas necessárias...
     ]
@@ -72,14 +77,21 @@ def get_ferramentas():
 def post_conferencia():
     data = request.get_json()
     mecanico_id = data['mecanico_id']
-    ferramentas_faltantes = data['ferramentas_faltantes']  # Lista de IDs de ferramentas faltantes
+    ferramentas_presentes = data['ferramentas_presentes']  # Lista de IDs de ferramentas presentes
     hoje = date.today()
+
+    # Obter todas as ferramentas do inventário padrão para o mecânico
+    inventario = InventarioPadrao.query.filter_by(mecanico_id=mecanico_id).all()
+    todas_ferramentas_ids = [item.ferramenta_id for item in inventario]
+
+    # Calcular as ferramentas faltantes
+    ferramentas_faltantes_ids = list(set(todas_ferramentas_ids) - set(ferramentas_presentes))
 
     # Remove registros existentes para o mecânico na data de hoje
     RegistroConferencia.query.filter_by(data=hoje, mecanico_id=mecanico_id).delete()
 
-    # Adiciona novos registros
-    for ferramenta_id in ferramentas_faltantes:
+    # Adiciona novos registros para as ferramentas faltantes
+    for ferramenta_id in ferramentas_faltantes_ids:
         registro = RegistroConferencia(
             data=hoje,
             mecanico_id=mecanico_id,
@@ -134,6 +146,7 @@ def gerar_relatorio(data_relatorio):
     p.save()
     buffer.seek(0)
     return buffer
+
 
 if __name__ == '__main__':
     app.run(debug=True)
