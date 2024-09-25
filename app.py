@@ -6,8 +6,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from reportlab.pdfgen import canvas
 
-from models import db, Mecanico, Ferramenta, InventarioPadrao, \
-    RegistroConferencia
+from models import db, Mechanic, Tool, DefaultInventory, ConferenceRecord
 
 app = Flask(__name__)
 CORS(app)
@@ -19,124 +18,124 @@ db.init_app(app)
 def create_tables():
     if not os.path.exists('./instance/database.db'):
         db.create_all()
-        # Popula o banco de dados com dados iniciais
+        # Populate the database with initial data
         populate_db()
     else:
-        # As tabelas já existem, não faz nada
+        # Tables already exist, do nothing
         pass
 
 
 def populate_db():
-    # Verifica se já existem dados
-    if Mecanico.query.first():
+    # Check if data already exists
+    if Mechanic.query.first():
         return
 
-    # Adiciona mecânicos
-    mecanicos = [
-        Mecanico(nome='Douglas'),
-        Mecanico(nome='Renan')
+    # Add mechanics
+    mechanics = [
+        Mechanic(name='Douglas'),
+        Mechanic(name='Renan')
     ]
-    db.session.add_all(mecanicos)
+    db.session.add_all(mechanics)
     db.session.commit()
 
-    # Adiciona ferramentas
-    ferramentas = [
-        Ferramenta(nome='Chave Combinada 8mm', categoria='Chaves Combinadas'),
-        Ferramenta(nome='Chave Combinada 9mm', categoria='Chaves Combinadas'),
-        Ferramenta(nome='Chave Combinada 10mm', categoria='Chaves Combinadas'),
+    # Add tools
+    tools = [
+        Tool(name='8mm Combination Wrench', category='Combination Wrenches'),
+        Tool(name='9mm Combination Wrench', category='Combination Wrenches'),
+        Tool(name='10mm Combination Wrench', category='Combination Wrenches'),
 
-        Ferramenta(nome='Chave L 15mm', categoria='Chaves L'),
+        Tool(name='15mm L Wrench', category='L Wrenches'),
 
-        Ferramenta(nome='Pito Grande 3mm', categoria='Pitos Grandes'),
-        # Adicione todas as ferramentas necessárias...
+        Tool(name='Large 3mm Punch', category='Large Punches'),
+        # Add all necessary tools...
     ]
-    db.session.add_all(ferramentas)
+    db.session.add_all(tools)
     db.session.commit()
 
-    # Associa todas as ferramentas a todos os mecânicos (inventário padrão)
-    for mecanico in mecanicos:
-        for ferramenta in ferramentas:
-            inventario = InventarioPadrao(mecanico_id=mecanico.id, ferramenta_id=ferramenta.id)
-            db.session.add(inventario)
+    # Associate all tools with all mechanics (default inventory)
+    for mechanic in mechanics:
+        for tool in tools:
+            inventory = DefaultInventory(mechanic_id=mechanic.id, tool_id=tool.id)
+            db.session.add(inventory)
     db.session.commit()
 
 
-@app.route('/mecanicos', methods=['GET'])
-def get_mecanicos():
-    mecanicos = Mecanico.query.all()
-    return jsonify([m.to_dict() for m in mecanicos])
+@app.route('/mechanics', methods=['GET'])
+def get_mechanics():
+    mechanics = Mechanic.query.all()
+    return jsonify([m.to_dict() for m in mechanics])
 
 
-@app.route('/ferramentas', methods=['GET'])
-def get_ferramentas():
-    ferramentas = Ferramenta.query.all()
-    return jsonify([f.to_dict() for f in ferramentas])
+@app.route('/tools', methods=['GET'])
+def get_tools():
+    tools = Tool.query.all()
+    return jsonify([t.to_dict() for t in tools])
 
 
-@app.route('/conferencia', methods=['POST'])
-def post_conferencia():
+@app.route('/conference', methods=['POST'])
+def post_conference():
     data = request.get_json()
-    mecanico_id = data['mecanico_id']
-    ferramentas_presentes = data['ferramentas_presentes']  # Lista de IDs de ferramentas presentes
-    hoje = date.today()
+    mechanic_id = data['mechanic_id']
+    present_tools = data['present_tools']  # List of present tool IDs
+    today = date.today()
 
-    # Obter todas as ferramentas do inventário padrão para o mecânico
-    inventario = InventarioPadrao.query.filter_by(mecanico_id=mecanico_id).all()
-    todas_ferramentas_ids = [item.ferramenta_id for item in inventario]
+    # Get all tools from the default inventory for the mechanic
+    inventory = DefaultInventory.query.filter_by(mechanic_id=mechanic_id).all()
+    all_tool_ids = [item.tool_id for item in inventory]
 
-    # Calcular as ferramentas faltantes
-    ferramentas_faltantes_ids = list(set(todas_ferramentas_ids) - set(ferramentas_presentes))
+    # Calculate missing tools
+    missing_tool_ids = list(set(all_tool_ids) - set(present_tools))
 
-    # Remove registros existentes para o mecânico na data de hoje
-    RegistroConferencia.query.filter_by(data=hoje, mecanico_id=mecanico_id).delete()
+    # Remove existing records for the mechanic on today's date
+    ConferenceRecord.query.filter_by(date=today, mechanic_id=mechanic_id).delete()
 
-    # Adiciona novos registros para as ferramentas faltantes
-    for ferramenta_id in ferramentas_faltantes_ids:
-        registro = RegistroConferencia(
-            data=hoje,
-            mecanico_id=mecanico_id,
-            ferramenta_id=ferramenta_id
+    # Add new records for missing tools
+    for tool_id in missing_tool_ids:
+        record = ConferenceRecord(
+            date=today,
+            mechanic_id=mechanic_id,
+            tool_id=tool_id
         )
-        db.session.add(registro)
+        db.session.add(record)
     db.session.commit()
-    return jsonify({'message': 'Conferência registrada com sucesso!'})
+    return jsonify({'message': 'Conference successfully recorded!'})
 
 
-@app.route('/relatorios/diario', methods=['GET'])
-def get_relatorio_diario():
-    data_str = request.args.get('data')  # Exemplo de formato: 'YYYY-MM-DD'
-    data_relatorio = datetime.strptime(data_str, '%Y-%m-%d').date()
-    buffer = gerar_relatorio(data_relatorio)
+@app.route('/reports/daily', methods=['GET'])
+def get_daily_report():
+    date_str = request.args.get('date')  # Example format: 'YYYY-MM-DD'
+    report_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    buffer = generate_report(report_date)
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name='relatorio_diario.pdf', mimetype='application/pdf')
+    return send_file(buffer, as_attachment=True, download_name='daily_report.pdf', mimetype='application/pdf')
 
 
-def gerar_relatorio(data_relatorio):
+def generate_report(report_date):
     buffer = BytesIO()
     p = canvas.Canvas(buffer)
     y = 800
 
     p.setFont("Helvetica-Bold", 16)
-    p.drawString(50, y, f"Relatório de Ferramentas Faltantes - {data_relatorio.strftime('%d/%m/%Y')}")
+    p.drawString(50, y, f"Missing Tools Report - {report_date.strftime('%d/%m/%Y')}")
     y -= 40
 
-    registros = RegistroConferencia.query.filter_by(data=data_relatorio).all()
+    records = ConferenceRecord.query.filter_by(date=report_date).all()
 
-    if not registros:
+    if not records:
         p.setFont("Helvetica", 12)
-        p.drawString(50, y, "Nenhuma ferramenta faltante registrada.")
+        p.drawString(50, y, "No missing tools recorded.")
     else:
-        mecanicos_ids = list(set([r.mecanico_id for r in registros]))
-        for mecanico_id in mecanicos_ids:
-            mecanico = Mecanico.query.get(mecanico_id)
+        mechanic_ids = list(set([r.mechanic_id for r in records]))
+        for mechanic_id in mechanic_ids:
+            mechanic = Mechanic.query.get(mechanic_id)
             p.setFont("Helvetica-Bold", 14)
-            p.drawString(50, y, f"Mecânico: {mecanico.nome}")
+            p.drawString(50, y, f"Mechanic: {mechanic.name}")
             y -= 20
-            registros_mecanico = [r for r in registros if r.mecanico_id == mecanico_id]
+            mechanic_records = [r for r in records if r.mechanic_id == mechanic_id]
             p.setFont("Helvetica", 12)
-            for registro in registros_mecanico:
-                ferramenta = Ferramenta.query.get(registro.ferramenta_id)
-                p.drawString(70, y, f"- {ferramenta.nome} ({ferramenta.categoria})")
+            for record in mechanic_records:
+                tool = Tool.query.get(record.tool_id)
+                p.drawString(70, y, f"- {tool.name} ({tool.category})")
                 y -= 20
                 if y < 50:
                     p.showPage()
