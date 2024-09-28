@@ -156,7 +156,7 @@ def post_conference():
         )
         db.session.add(record)
     db.session.commit()
-    return jsonify({'message': 'Conference successfully recorded!'})
+    return jsonify({'message': 'Conferencia realizada com sucesso!'})
 
 
 @app.route('/reports/daily', methods=['GET'])
@@ -165,7 +165,7 @@ def get_daily_report():
     report_date = datetime.strptime(date_str, '%Y-%m-%d').date()
     buffer = generate_report(report_date)
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name='daily_report.pdf', mimetype='application/pdf')
+    return send_file(buffer, as_attachment=True, download_name='relatorio-diario.pdf', mimetype='application/pdf')
 
 
 def generate_report(report_date):
@@ -174,20 +174,20 @@ def generate_report(report_date):
     y = 800
 
     p.setFont("Helvetica-Bold", 16)
-    p.drawString(50, y, f"Missing Tools Report - {report_date.strftime('%d/%m/%Y')}")
+    p.drawString(50, y, f"Relatorio de ferramentas ausentes - {report_date.strftime('%d/%m/%Y')}")
     y -= 40
 
     records = ConferenceRecord.query.filter_by(date=report_date).all()
 
     if not records:
         p.setFont("Helvetica", 12)
-        p.drawString(50, y, "No missing tools recorded.")
+        p.drawString(50, y, "Nenhuma ferramenta ausente registrada.")
     else:
         mechanic_ids = list(set([r.mechanic_id for r in records]))
         for mechanic_id in mechanic_ids:
             mechanic = Mechanic.query.get(mechanic_id)
             p.setFont("Helvetica-Bold", 14)
-            p.drawString(50, y, f"Mechanic: {mechanic.name}")
+            p.drawString(50, y, f"Mecanico: {mechanic.name}")
             y -= 20
             mechanic_records = [r for r in records if r.mechanic_id == mechanic_id]
             p.setFont("Helvetica", 12)
