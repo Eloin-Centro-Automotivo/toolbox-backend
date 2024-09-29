@@ -169,6 +169,7 @@ def create_app(test_config=None):
         buffer.seek(0)
         return send_file(buffer, as_attachment=True, download_name='relatorio-diario.pdf', mimetype='application/pdf')
 
+
     def generate_report(report_date):
         buffer = BytesIO()
         p = canvas.Canvas(buffer)
@@ -200,6 +201,80 @@ def create_app(test_config=None):
                         p.showPage()
                         y = 800
                 y -= 10
+
+        p.save()
+        buffer.seek(0)
+        return buffer
+
+    @app.route('/reports/missing_tools', methods=['GET'])
+    def get_missing_tools_report():
+        date_str = request.args.get('date')  # Exemplo: '2023-10-01'
+        if not date_str:
+            return jsonify({'error': 'Date parameter is required.'}), 400
+
+        try:
+            report_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
+
+        # Obter todos os registros de ferramentas faltantes na data especificada
+        missing_records = ConferenceRecord.query.filter_by(date=report_date).all()
+
+        # Obter IDs únicos das ferramentas faltantes
+        missing_tool_ids = {record.tool_id for record in missing_records}
+
+        # Obter detalhes das ferramentas faltantes
+        missing_tools = Tool.query.filter(Tool.id.in_(missing_tool_ids)).all()
+
+        # Converter as ferramentas para dicionários
+        missing_tools_data = [tool.to_dict() for tool in missing_tools]
+
+        return jsonify(missing_tools_data)
+
+    @app.route('/reports/missing_tools/pdf', methods=['GET'])
+    def get_missing_tools_report_pdf():
+        date_str = request.args.get('date')
+        if not date_str:
+            return jsonify({'error': 'Date parameter is required.'}), 400
+
+        try:
+            report_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
+
+        buffer = generate_missing_tools_pdf(report_date)
+        buffer.seek(0)
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name='relatorio-ferramentas-faltantes.pdf',
+            mimetype='application/pdf'
+        )
+
+    def generate_missing_tools_pdf(report_date):
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer)
+        y = 800
+
+        p.setFont("Helvetica-Bold", 16)
+        p.drawString(50, y, f"Relatório de Ferramentas Faltantes - {report_date.strftime('%d/%m/%Y')}")
+        y -= 40
+
+        missing_records = ConferenceRecord.query.filter_by(date=report_date).all()
+        missing_tool_ids = {record.tool_id for record in missing_records}
+        missing_tools = Tool.query.filter(Tool.id.in_(missing_tool_ids)).all()
+
+        if not missing_tools:
+            p.setFont("Helvetica", 12)
+            p.drawString(50, y, "Nenhuma ferramenta faltante registrada.")
+        else:
+            p.setFont("Helvetica", 12)
+            for tool in missing_tools:
+                p.drawString(50, y, f"- {tool.name} ({tool.category})")
+                y -= 20
+                if y < 50:
+                    p.showPage()
+                    y = 800
 
         p.save()
         buffer.seek(0)
