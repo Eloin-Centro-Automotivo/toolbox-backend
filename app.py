@@ -1,10 +1,12 @@
 # app.py
 import os
+
 from flask import Flask
 from flask_cors import CORS
+
 from models import db
 from routes import all_blueprints
-from database.populate_db import populate_db
+
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -21,7 +23,6 @@ def create_app(test_config=None):
     def setup():
         if not os.path.exists('./database.db'):
             db.create_all()
-            populate_db()
         else:
             pass
 
