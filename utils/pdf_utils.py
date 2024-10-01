@@ -1,10 +1,13 @@
 # utils/pdf_utils.py
 
 from io import BytesIO
+
+from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from models.mechanic import Mechanic
 from models.tool import Tool
 from models.conference_record import ConferenceRecord
+
 
 def generate_report(report_date):
     buffer = BytesIO()
@@ -12,7 +15,7 @@ def generate_report(report_date):
     y = 800
 
     p.setFont("Helvetica-Bold", 16)
-    p.drawString(50, y, f"Relatório de ferramentas ausentes - {report_date.strftime('%d/%m/%Y')}")
+    p.drawString(50, y, f"Relatório de Ferramentas Ausentes - {report_date.strftime('%d/%m/%Y')}")
     y -= 40
 
     records = ConferenceRecord.query.filter_by(date=report_date).all()
@@ -42,30 +45,47 @@ def generate_report(report_date):
     buffer.seek(0)
     return buffer
 
-def generate_missing_tools_pdf(report_date):
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer)
-    y = 800
 
+def generate_aggregate_report(report_date, aggregated_missing_tools):
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    y = height - 50  # Posição inicial no eixo Y
+
+    # Título do Relatório
     p.setFont("Helvetica-Bold", 16)
-    p.drawString(50, y, f"Relatório de Ferramentas Faltantes - {report_date.strftime('%d/%m/%Y')}")
+    p.drawString(50, y, f"Relatório Agregado de Ferramentas Ausentes - {report_date.strftime('%d/%m/%Y')}")
     y -= 40
 
-    missing_records = ConferenceRecord.query.filter_by(date=report_date).all()
-    missing_tool_ids = {record.tool_id for record in missing_records}
-    missing_tools = Tool.query.filter(Tool.id.in_(missing_tool_ids)).all()
-
-    if not missing_tools:
+    if not aggregated_missing_tools:
         p.setFont("Helvetica", 12)
-        p.drawString(50, y, "Nenhuma ferramenta faltante registrada.")
+        p.drawString(50, y, "Nenhuma ferramenta ausente registrada para a data selecionada.")
     else:
+        # Cabeçalhos da Tabela
+        p.setFont("Helvetica-Bold", 12)
+        p.drawString(50, y, "Ferramenta")
+        p.drawString(400, y, "Quantidade")
+        y -= 20
+        p.line(50, y, width - 50, y)  # Linha horizontal abaixo dos cabeçalhos
+        y -= 20
+
+        # Conteúdo da Tabela
         p.setFont("Helvetica", 12)
-        for tool in missing_tools:
-            p.drawString(50, y, f"- {tool.name} ({tool.category})")
-            y -= 20
+        for tool in aggregated_missing_tools:
             if y < 50:
                 p.showPage()
-                y = 800
+                y = height - 50
+                # Repetir os cabeçalhos na nova página
+                p.setFont("Helvetica-Bold", 12)
+                p.drawString(50, y, "Nome da Ferramenta")
+                p.drawString(400, y, "Quantidade Necessária")
+                y -= 20
+                p.line(50, y, width - 50, y)
+                y -= 20
+                p.setFont("Helvetica", 12)
+            p.drawString(50, y, tool['tool_name'])
+            p.drawString(400, y, str(tool['count']))
+            y -= 20
 
     p.save()
     buffer.seek(0)
