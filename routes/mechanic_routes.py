@@ -56,8 +56,8 @@ def delete_mechanic(mechanic_id):
     return jsonify({'message': 'Mechanic deleted successfully.'}), 200
 
 
-@mechanic_bp.route('/mechanics/<int:mechanic_id>/assign-default-inventory', methods=['POST'])
-def assign_default_inventory(mechanic_id):
+@mechanic_bp.route('/mechanics/<int:mechanic_id>/assign-default-toolbox', methods=['POST'])
+def assign_default_toolbox(mechanic_id):
     mechanic = Mechanic.query.get_or_404(mechanic_id)
 
     try:
@@ -90,8 +90,8 @@ def assign_default_inventory(mechanic_id):
         return jsonify({'error': str(e)}), 500
 
 
-@mechanic_bp.route('/mechanics/assign-default-inventory-to-all', methods=['POST'])
-def assign_default_inventory_to_all():
+@mechanic_bp.route('/mechanics/assign-default-toolbox-to-all', methods=['POST'])
+def assign_default_toolbox_to_all():
     mechanics = Mechanic.query.all()
 
     try:
