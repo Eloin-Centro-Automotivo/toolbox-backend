@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify, send_file
 from models import Mechanic
 from models.conference_record import ConferenceRecord
 from models.tool import Tool
-from utils.pdf_utils import generate_report, generate_aggregate_report, generate_inventory_checklist_by_mechanic_pdf
+from utils.pdf_utils import generate_report, generate_aggregate_report, generate_toolbox_checklist
 
 report_bp = Blueprint('report_bp', __name__)
 
@@ -72,8 +72,8 @@ def get_missing_tools_aggregate_report():
         return jsonify({'error': str(e)}), 500
 
 
-@report_bp.route('/reports/inventory-checklist-by-mechanic/pdf', methods=['GET'])
-def get_inventory_checklist_by_mechanic_pdf():
+@report_bp.route('/reports/toolbox-checklist', methods=['GET'])
+def get_toolbox_checklist():
     try:
         # Obter todas as ferramentas do inventário padrão, agrupadas por categoria
         categories = defaultdict(list)
@@ -85,8 +85,8 @@ def get_inventory_checklist_by_mechanic_pdf():
         mechanics = Mechanic.query.order_by(Mechanic.name).all()
         mechanic_names = [mechanic.name for mechanic in mechanics]
 
-        buffer = generate_inventory_checklist_by_mechanic_pdf(categories,
-                                                              mechanic_names)
+        buffer = generate_toolbox_checklist(categories,
+                                            mechanic_names)
         buffer.seek(0)
         return send_file(buffer, as_attachment=True,
                          download_name='checklist_inventario_padrao_por_mecanico.pdf',
