@@ -96,7 +96,7 @@ def generate_aggregate_report(report_date, aggregated_missing_tools):
     return buffer
 
 
-def generate_inventory_checklist_by_mechanic_pdf(categories, mechanic_names):
+def generate_toolbox_checklist(categories, mechanic_names):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=50, rightMargin=50,
                             topMargin=50, bottomMargin=50)
@@ -104,7 +104,7 @@ def generate_inventory_checklist_by_mechanic_pdf(categories, mechanic_names):
     elements = []
 
     # Título da Checklist
-    title = Paragraph("Checklist do Inventário Padrão por Mecânico",
+    title = Paragraph("Checklist da Caixa de Ferramentas",
                       styles['Title'])
     elements.append(title)
     elements.append(Spacer(1, 12))
