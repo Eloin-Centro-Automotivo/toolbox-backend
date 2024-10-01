@@ -4,9 +4,10 @@ from datetime import datetime
 
 from flask import Blueprint, request, jsonify, send_file
 
+from models import Mechanic
 from models.conference_record import ConferenceRecord
 from models.tool import Tool
-from utils.pdf_utils import generate_report, generate_aggregate_report
+from utils.pdf_utils import generate_report, generate_aggregate_report, generate_inventory_checklist_by_mechanic_pdf
 
 report_bp = Blueprint('report_bp', __name__)
 
@@ -65,6 +66,30 @@ def get_missing_tools_aggregate_report():
         buffer = generate_aggregate_report(report_date, aggregated_missing_tools)
         buffer.seek(0)
         return send_file(buffer, as_attachment=True, download_name='aggregated_missing_tools_report.pdf',
+                         mimetype='application/pdf')
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@report_bp.route('/reports/inventory-checklist-by-mechanic/pdf', methods=['GET'])
+def get_inventory_checklist_by_mechanic_pdf():
+    try:
+        # Obter todas as ferramentas do inventário padrão, agrupadas por categoria
+        categories = defaultdict(list)
+        tools = Tool.query.order_by(Tool.category, Tool.name).all()
+        for tool in tools:
+            categories[tool.category].append(tool)
+
+        # Obter todos os mecânicos cadastrados
+        mechanics = Mechanic.query.order_by(Mechanic.name).all()
+        mechanic_names = [mechanic.name for mechanic in mechanics]
+
+        buffer = generate_inventory_checklist_by_mechanic_pdf(categories,
+                                                              mechanic_names)
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True,
+                         download_name='checklist_inventario_padrao_por_mecanico.pdf',
                          mimetype='application/pdf')
 
     except Exception as e:

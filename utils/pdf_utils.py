@@ -1,12 +1,16 @@
 # utils/pdf_utils.py
 
+from datetime import datetime
 from io import BytesIO
 
+from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfgen import canvas
-from models.mechanic import Mechanic
-from models.tool import Tool
-from models.conference_record import ConferenceRecord
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, \
+    Spacer
+
+from models import Tool, ConferenceRecord, Mechanic
 
 
 def generate_report(report_date):
@@ -88,5 +92,65 @@ def generate_aggregate_report(report_date, aggregated_missing_tools):
             y -= 20
 
     p.save()
+    buffer.seek(0)
+    return buffer
+
+
+def generate_inventory_checklist_by_mechanic_pdf(categories, mechanic_names):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=50, rightMargin=50,
+                            topMargin=50, bottomMargin=50)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Título da Checklist
+    title = Paragraph("Checklist do Inventário Padrão por Mecânico",
+                      styles['Title'])
+    elements.append(title)
+    elements.append(Spacer(1, 12))
+
+    # Data da Geração
+    date_paragraph = Paragraph(f"Data: {datetime.now().strftime('%d/%m/%Y')}",
+                               styles['Normal'])
+    elements.append(date_paragraph)
+    elements.append(Spacer(1, 24))
+
+    # Cabeçalhos
+    headers = ["Categoria", "Ferramenta"] + mechanic_names
+
+    # Estilo da Tabela
+    estilo = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+    ])
+
+    data = [headers]
+
+    # Conteúdo da Tabela
+    for category, tools in categories.items():
+        for idx, tool in enumerate(tools):
+            if idx == 0:
+                row = [category, tool.name] + [" " for _ in mechanic_names]
+            else:
+                row = ["", tool.name] + [" " for _ in mechanic_names]
+            data.append(row)
+
+    # Ajustar largura das colunas
+    colWidths = [80, 225] + [70 for _ in mechanic_names]
+
+    # Criar a tabela
+    table = Table(data, colWidths=colWidths)
+    table.setStyle(estilo)
+
+    elements.append(table)
+
+    # Construir o documento
+    doc.build(elements)
+
     buffer.seek(0)
     return buffer
