@@ -7,22 +7,21 @@ Mechanic Tools Management is a web application developed with Flask that allows 
 - [How It Works](#-how-it-works)
 - [Tools and Technologies Used](#-tools-and-technologies-used)
 - [Prerequisites](#-prerequisites)
-- [Installation Instructions]
-    - [Clone this repository]
-    - [Navigate to the project directory]
-    - [Create and activate a virtual environment]
-        - [Install the virtualenv library]
-        - 3.2. Create a virtual environment named venv
-            - Linux or macOS
-            - Windows
-        - 3.3. Activate the virtual environment
-            - Linux or macOS
-            - Windows
-    - 4. Install dependencies
-    - 5. Configure the database
-    - 6. Run the application
+- [Installation Instructions](#-installation-instructions)
+    - [Clone this repository](#1-clone-this-repository)
+    - [Navigate to the project directory](#2-navigate-to-the-project-directory)
+    - [Create and activate a virtual environment](#3-create-and-activate-a-virtual-environment)
+        - [Install the virtualenv library](#31-install-the-virtualenv-library)
+        - [Create a virtual environment named venv](#32-then-create-a-virtual-environment-named-venv)
+            - [Linux or macOS](#linux-or-macos)
+            - [Windows](#windows)
+        - [Activate the virtual environment](#33-activate-the-virtual-environment)
+            - [Linux or macOS](#linux-or-macos-1)
+            - [Windows](#windows-1)
+    - [Install dependencies]
+    - [Configure the database]
+    - [Run the application]
 📌 Observations
-
 
 ## 🚀 Key Features
 - **Mechanic and Tool Management:** Allows adding, editing, viewing, and deleting mechanics and tools.
@@ -63,14 +62,33 @@ Before running the application, ensure you have the following prerequisites inst
 ## 📝 Installation Instructions
 ### 1. Clone this repository
 ```bash
-git clone https://github.com/esperanca-leonardo/
+git clone https://github.com/Eloin-Centro-Automotivo/toolbox-backend.git
 ```
-
 ### 2. Navigate to the project directory
 ```bash
-cd late-pay-notify
+cd toolbox-backend
 ```
-
-
 ### 3. Create and activate a virtual environment
-  - ####3.1. Install the virtualenv library
+- #### 3.1. Install the virtualenv library
+    ```bash
+    pip install virtualenv
+    ```
+- #### 3.2. Then, create a virtual environment named `venv`
+  - ##### Linux or macOS
+      ```bash
+      virtualenv venv
+      ```
+  - ##### Windows
+      ```bash
+      python -m virtualenv venv
+      ```
+- #### 3.3. Activate the virtual environment
+    - ##### Linux or macOS
+        ```bash
+        source venv/bin/activate
+        ```
+    - ##### Windows
+        ```bash
+        .\venv\Scripts\activate.bat
+        ```
+    
