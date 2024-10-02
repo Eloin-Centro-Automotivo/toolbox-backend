@@ -18,8 +18,8 @@ Mechanic Tools Management is a web application developed with Flask that allows 
         - [Activate the virtual environment](#33-activate-the-virtual-environment)
             - [Linux or macOS](#linux-or-macos-1)
             - [Windows](#windows-1)
-    - [Install dependencies]
-    - [Configure the database]
+    - [Install dependencies](#4-install-dependencies)
+    - [Configure the database](#5-configure-the-database)
     - [Run the application]
 📌 Observations
 
@@ -91,4 +91,12 @@ cd toolbox-backend
         ```bash
         .\venv\Scripts\activate.bat
         ```
-    
+
+### 4. Install dependencies
+Make sure you have Python and pip installed on your system. Then, install the project dependencies using pip
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Configure the database
+The application uses SQLite as the database. The database will be created automatically upon the first run of the application. No additional configuration is required.
