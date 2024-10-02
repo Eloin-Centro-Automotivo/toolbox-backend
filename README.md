@@ -20,8 +20,8 @@ Mechanic Tools Management is a web application developed with Flask that allows 
             - [Windows](#windows-1)
     - [Install dependencies](#4-install-dependencies)
     - [Configure the database](#5-configure-the-database)
-    - [Run the application]
-📌 Observations
+    - [Run the application](#6-run-the-application)
+- [Observations](#-observations)
 
 ## 🚀 Key Features
 - **Mechanic and Tool Management:** Allows adding, editing, viewing, and deleting mechanics and tools.
@@ -64,10 +64,12 @@ Before running the application, ensure you have the following prerequisites inst
 ```bash
 git clone https://github.com/Eloin-Centro-Automotivo/toolbox-backend.git
 ```
+
 ### 2. Navigate to the project directory
 ```bash
 cd toolbox-backend
 ```
+
 ### 3. Create and activate a virtual environment
 - #### 3.1. Install the virtualenv library
     ```bash
@@ -100,3 +102,15 @@ pip install -r requirements.txt
 
 ### 5. Configure the database
 The application uses SQLite as the database. The database will be created automatically upon the first run of the application. No additional configuration is required.
+
+### 6. Run the application
+Start the Flask application with the following command:
+```bash
+python app.py
+```
+
+## 📌 Observations
+- **Database:** The application uses SQLite for simplicity. For production environments, consider using more robust databases like PostgreSQL or MySQL.
+- **Report Generation:** Reports are generated in PDF format and stored in memory before being sent as a response. Ensure appropriate permissions if opting to save reports to the file system.
+- **Future Extensions:** The application can be extended with additional features such as user authentication, a more elaborate frontend interface, or integrations with other systems.
+- **Contributions:** Feel free to contribute improvements or report issues through the GitHub repository.
