@@ -11,8 +11,8 @@ from utils.pdf_utils import generate_report, generate_aggregate_report, generate
 
 report_bp = Blueprint('report_bp', __name__)
 
-@report_bp.route('/reports/daily', methods=['GET'])
-def get_daily_report():
+@report_bp.route('/reports/missing-tools', methods=['GET'])
+def get_missing_tools_report():
     date_str = request.args.get('date')  # Example format: 'YYYY-MM-DD'
     if not date_str:
         return jsonify({'error': 'Date parameter is required.'}), 400
