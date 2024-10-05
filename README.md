@@ -21,6 +21,7 @@ Mechanic Tools Management is a web application developed with Flask that allows 
     - [Install dependencies](#4-install-dependencies)
     - [Configure the database](#5-configure-the-database)
     - [Run the application](#6-run-the-application)
+- [Insomnia Requests](#-insomnia-requests)
 - [Observations](#-observations)
 
 ## 🚀 Key Features
@@ -108,6 +109,16 @@ Start the Flask application with the following command:
 ```bash
 python app.py
 ```
+
+## 📂 Insomnia Requests
+For greater convenience, an Insomnia file containing all the API requests has been created. This allows you to easily test the endpoints without having to manually configure each request. The file is named `InsomniaRequests.json` and is located in the root of the project.
+
+To use this file, follow these steps
+1. Open Insomnia.
+2. Go to `Application` > `Preferences` > `Data` tab.
+3. Click on `Import Data` and select `From File`.
+4. Choose the `InsomniaRequests.json` file from the root of the project.
+5. The requests will be imported and ready to use.
 
 ## 📌 Observations
 - **Database:** The application uses SQLite for simplicity. For production environments, consider using more robust databases like PostgreSQL or MySQL.
