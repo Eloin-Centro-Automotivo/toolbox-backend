@@ -124,6 +124,22 @@ To use this file, follow these steps
 ## 📚 Usage Examples
 Below are examples of how to use the Mechanic Tools Management API endpoints in different scenarios. These examples can help you understand how to interact with the API effectively. By default, the application will run on `localhost:5000`.
 
+- ### 🆕 Create a Mechanic
+  - To create a new mechanic, send a `POST` request to the `/mechanics` endpoint with the mechanic details in the request body. The request body should be in JSON format as shown below
+    ```json
+    {
+      "name": "Mechanic Name"
+    }
+    ```
+
+  - If the mechanic is created successfully, the API will respond with a status code `201 Created` and the details of the newly created mechanic in the response body
+    ```json
+    {
+      "id": 1,
+      "name": "Mechanic Name"
+    }
+    ```
+
 ## 📌 Observations
 - **Database:** The application uses SQLite for simplicity. For production environments, consider using more robust databases like PostgreSQL or MySQL.
 - **Report Generation:** Reports are generated in PDF format and stored in memory before being sent as a response. Ensure appropriate permissions if opting to save reports to the file system.
