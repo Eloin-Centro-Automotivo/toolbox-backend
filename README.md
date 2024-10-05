@@ -3,7 +3,7 @@ Mechanic Tools Management is a web application developed with Flask that allows 
 
 ## 📑 Table of Contents
 - [Key Features](#-key-features)
-- [Demonstration Video]
+- [Demonstration Video]()
 - [How It Works](#-how-it-works)
 - [Tools and Technologies Used](#-tools-and-technologies-used)
 - [Prerequisites](#-prerequisites)
