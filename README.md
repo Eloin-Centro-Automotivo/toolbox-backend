@@ -23,6 +23,8 @@ Mechanic Tools Management is a web application developed with Flask that allows 
     - [Run the application](#6-run-the-application)
 - [Insomnia Requests](#-insomnia-requests)
 - [Usage Examples](#-usage-examples)
+    - [Create a Mechanic](#-create-a-mechanic)
+    - [Retrieve a Mechanic by ID](#-retrieve-a-mechanic-by-id)
 - [Observations](#-observations)
 
 ## 🚀 Key Features
@@ -123,6 +125,32 @@ To use this file, follow these steps
 
 ## 📚 Usage Examples
 Below are examples of how to use the Mechanic Tools Management API endpoints in different scenarios. These examples can help you understand how to interact with the API effectively. By default, the application will run on `localhost:5000`.
+
+- ### 🆕 Create a Mechanic
+  - To create a new mechanic, send a `POST` request to the `/mechanics` endpoint with the mechanic details in the request body. The request body should be in JSON format as shown below
+    ```json
+    {
+      "name": "Mechanic Name"
+    }
+    ```
+
+  - If the mechanic is created successfully, the API will respond with a status code `201 Created` and the details of the newly created mechanic in the response body
+    ```json
+    {
+      "id": 1,
+      "name": "Mechanic Name"
+    }
+    ```
+
+- ### 🔍 Retrieve a Mechanic by ID
+  - To retrieve details of a specific mechanic by its ID, send a `GET` request to the `/mechanics/{id}` endpoint, replacing `{id}` with the actual mechanic ID.
+    If the mechanic with the specified ID exists, the API will respond with a status code `200 OK` and the details of the mechanic in the response body
+    ```json
+    {
+	  "id": 1,
+	  "name": "Mechanic Name"
+    }
+    ```
 
 ## 📌 Observations
 - **Database:** The application uses SQLite for simplicity. For production environments, consider using more robust databases like PostgreSQL or MySQL.
