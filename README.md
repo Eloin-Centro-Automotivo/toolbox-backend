@@ -144,13 +144,16 @@ Below are examples of how to use the Mechanic Tools Management API endpoints in 
 
 - ### 🔍 Retrieve a Mechanic by ID
   - To retrieve details of a specific mechanic by its ID, send a `GET` request to the `/mechanics/{id}` endpoint, replacing `{id}` with the actual mechanic ID.
-    If the mechanic with the specified ID exists, the API will respond with a status code `200 OK` and the details of the mechanic in the response body
+  If the mechanic with the specified ID exists, the API will respond with a status code `200 OK` and the details of the mechanic in the response body
+
     ```json
     {
 	  "id": 1,
 	  "name": "Mechanic Name"
     }
     ```
+
+  
 
 ## 📌 Observations
 - **Database:** The application uses SQLite for simplicity. For production environments, consider using more robust databases like PostgreSQL or MySQL.
